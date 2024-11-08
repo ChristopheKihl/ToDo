@@ -1,10 +1,9 @@
 let task = document.getElementById("task");
 let aFaire = document.getElementById("faire");
 let aValider = document.getElementById("validation")
+let aTerminer = document.getElementById("terminees");
 let button = document.getElementById("validate");
 let checkbox = document.getElementsByClassName("form-check-input");
-let trashFaire = document.getElementById("faire");
-let trashValid = document.getElementById("validation");
 
 
 
@@ -12,8 +11,9 @@ let trashValid = document.getElementById("validation");
 button.addEventListener("click", ajoutTache);
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
-trashFaire.addEventListener("click", supprimerTache);
-trashValid.addEventListener("click", supprimerTache);
+aFaire.addEventListener("click", supprimerTache);
+aValider.addEventListener("click", supprimerTache);
+aTerminer.addEventListener("click", supprimerTache);
 
 
 
@@ -29,7 +29,8 @@ function ajoutTache() {
     input.classList.add("form-check-input", "mx-2", "align-middle")
     input.setAttribute("id", "checkbox");
     label.textContent = value;
-    label.classList.add("align-middle")
+    label.classList.add("align-middle", "px-2");
+    label.setAttribute("position", "faire"); //creation de la position où se trouve l'élément
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
     poubelle.setAttribute("onclick", "supprimerTache()");
@@ -47,6 +48,7 @@ function ajoutTache() {
 
 function transfererTache(event) {
 
+
     let elementActif = event.target.nodeName;
     let elementParent = event.target.parentElement.id;
 
@@ -62,8 +64,6 @@ function transfererTache(event) {
         }
         if (elementActif === "LI") {
             let parent = event.target;
-            console.log(parent);
-
             let transfert = aFaire.removeChild(parent);
             return faireTransfert(transfert, elementParent);
         }
@@ -74,7 +74,8 @@ function transfererTache(event) {
             let parent = event.target.parentElement;
             let transfert = aValider.removeChild(parent);
             return faireTransfert(transfert, elementParent);
-        } else {
+        } if (elementActif === "LI") {
+
             let parent = event.target;
             let transfert = aValider.removeChild(parent);
             return faireTransfert(transfert, elementParent);
@@ -84,14 +85,14 @@ function transfererTache(event) {
 
 function faireTransfert(termine, source) {
     let destination;
-    console.log(termine);
-
 
     if (source === "faire") {
         destination = document.getElementById("validation");
     }
     if (source === "validation") {
         destination = document.getElementById("terminees");
+        let suppr = termine.firstChild;
+        termine.removeChild(suppr);
     }
     destination.appendChild(termine);
 }
@@ -125,5 +126,20 @@ function supprimerTache(event) {
             aValider.removeChild(elementParent);
         }
     }
+
+    if (elementParent === "terminees") {
+
+        if (event.target.nodeName === "I") {
+            elementParent = event.target.parentElement.parentElement;
+            aTerminer.removeChild(elementParent);
+        }
+        if (event.target.nodeName === "BUTTON") {
+            elementParent = event.target.parentElement;
+            aTerminer.removeChild(elementParent);
+        }
+    }
 }
 
+function save() {
+
+}
