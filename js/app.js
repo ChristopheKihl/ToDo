@@ -6,15 +6,12 @@ let button = document.getElementById("validate");
 let checkbox = document.getElementsByClassName("form-check-input");
 
 
-
-
 button.addEventListener("click", ajoutTache);
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
 aFaire.addEventListener("click", supprimerTache);
 aValider.addEventListener("click", supprimerTache);
 aTerminer.addEventListener("click", supprimerTache);
-
 
 
 function ajoutTache() {
@@ -141,5 +138,6 @@ function supprimerTache(event) {
 }
 
 function save() {
+    //TODO  FAIRE CETTE FONCTION
 
 }
