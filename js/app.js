@@ -11,12 +11,16 @@ if (TASKS === null) {
     TASKS = [];
 }
 
+// console.log(TASKS);
+
+
 for (let i = 0; i < TASKS.length; i++) {
-    if (TASKS[i].position === "faire") {
-        ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
-    }
+
+    ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
 
 }
+
+
 button.addEventListener("click", () => { ajoutTache(task.value, "faire", 0) });
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
@@ -30,7 +34,7 @@ function ajoutTache(value, position, state, id) {
     let label = document.createElement("label");
     let poubelle = document.createElement("button");
     let image = document.createElement("i");
-    
+
 
     input.setAttribute("type", "checkbox");
     input.classList.add("form-check-input", "mx-2", "align-middle");
@@ -44,7 +48,9 @@ function ajoutTache(value, position, state, id) {
     poubelle.classList.add("btn", "btn-outline-danger", "mx-2");
     image.setAttribute("class", "bi bi-trash3");
 
+    if (position != "terminees"){
     newLi.appendChild(input);
+}
     newLi.appendChild(label);
     poubelle.appendChild(image);
     newLi.appendChild(poubelle);
@@ -64,13 +70,14 @@ function ajoutTache(value, position, state, id) {
     task.value = "";
 
     if (state === 0) {
-        return saveTask(value, label.getAttribute("position"));
+        return saveTask(value, label.getAttribute("position"), state);
     }
 }
 
 function transfererTache(event) {
     let elementActif = event.target.nodeName;
     let elementParent = event.target.parentElement.id;
+
 
     if (elementParent === "") {
         elementParent = event.target.parentElement.parentElement.id;
@@ -81,11 +88,13 @@ function transfererTache(event) {
         if (elementActif === "INPUT" || elementActif === "LABEL") {
             let parent = event.target.parentElement;
             let transfert = aFaire.removeChild(parent);
+
             return faireTransfert(transfert, elementParent);
         }
         if (elementActif === "LI") {
             let parent = event.target;
             let transfert = aFaire.removeChild(parent);
+
             return faireTransfert(transfert, elementParent);
         }
     }
@@ -94,11 +103,13 @@ function transfererTache(event) {
         if (elementActif === "INPUT" || elementActif === "LABEL") {
             let parent = event.target.parentElement;
             let transfert = aValider.removeChild(parent);
+
             return faireTransfert(transfert, elementParent);
         }
         if (elementActif === "LI") {
             let parent = event.target;
             let transfert = aValider.removeChild(parent);
+
             return faireTransfert(transfert, elementParent);
         }
     }
@@ -106,11 +117,13 @@ function transfererTache(event) {
 
 function faireTransfert(termine, source) {
     let destination;
+    let value;
+    let position;
 
     if (source === "faire") {
         destination = document.getElementById("validation");
         let destinationId = destination.getAttribute("id");
-        
+
 
         if (event.target.nodeName === "LABEL") {
             event.target.setAttribute("position", destinationId);
@@ -118,6 +131,8 @@ function faireTransfert(termine, source) {
         if (event.target.nodeName === "INPUT") {
             event.target.nextElementSibling.setAttribute("position", destinationId);
         }
+        value = termine.firstChild.nextElementSibling.getAttribute("id");
+        position = termine.firstChild.nextElementSibling.getAttribute("position");
     }
 
     if (source === "validation") {
@@ -126,16 +141,19 @@ function faireTransfert(termine, source) {
 
 
         if (event.target.nodeName === "LABEL") {
-            event.target.setAttribute("position", "terminees");
+            event.target.setAttribute("position", destinationId);
         }
         if (event.target.nodeName === "INPUT") {
-            event.target.nextElementSibling.setAttribute("position", "terminees");
+            event.target.nextElementSibling.setAttribute("position", destinationId);
         }
+        value = termine.firstChild.nextElementSibling.getAttribute("id");
+        position = termine.firstChild.nextElementSibling.getAttribute("position");
 
         let suppr = termine.firstChild;
         termine.removeChild(suppr);
     }
     destination.appendChild(termine);
+    saveTask(value, position, 1);
 }
 
 function supprimerTache(event) {
@@ -179,16 +197,32 @@ function supprimerTache(event) {
     }
 }
 
+
 function saveTask(value, position, state) {
 
-console.log(state);
 
-    let lengthTab = Object.values(TASKS).length;
+    let lastId;
 
-        let nouvelleTache = { id: lengthTab, nomTache: value, position: position };
+    TASKS.forEach(dernier => {
+        lastId = dernier.id + 1
+    });
+    
+
+    if (state === 0) {
+        let nouvelleTache = { id: lastId, nomTache: value, position: position };
         TASKS.push(nouvelleTache);
         localStorage.setItem("task", JSON.stringify(TASKS));
-        console.log(TASKS);
+
+    } if (state === 1 ) {
+        TASKS.forEach(valeur => {
+            if (valeur.id == value) {
+                valeur.position = position;
+            };
+        });
+        // localStorage.setItem("task", JSON.stringify(TASKS)); //! NE PAS OUBLIER D'ENLEVER LE COMMENTAIRE
+
+
+    }
 
 }
 
