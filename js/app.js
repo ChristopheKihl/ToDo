@@ -1,9 +1,30 @@
 let task = document.getElementById("task");
 let aFaire = document.getElementById("faire");
-let aValider = document.getElementById("validation")
+let aValider = document.getElementById("validation");
 let aTerminer = document.getElementById("terminees");
 let button = document.getElementById("validate");
 let checkbox = document.getElementsByClassName("form-check-input");
+
+let TASKS = loadTask();
+
+if (TASKS === null) {
+    TASKS = [];
+}
+
+
+for (let i = 0; i < TASKS.length; i++) {
+    if (TASKS[i].position === "faire") {
+        let value = task.value;
+        let newLi = document.createElement("li");
+        let input = document.createElement("input");
+        let label = document.createElement("label");
+        let poubelle = document.createElement("button");
+        let image = document.createElement("i");
+
+    }
+
+}
+
 
 
 button.addEventListener("click", ajoutTache);
@@ -12,7 +33,6 @@ aValider.addEventListener("click", transfererTache);
 aFaire.addEventListener("click", supprimerTache);
 aValider.addEventListener("click", supprimerTache);
 aTerminer.addEventListener("click", supprimerTache);
-
 
 function ajoutTache() {
     let value = task.value;
@@ -23,29 +43,28 @@ function ajoutTache() {
     let image = document.createElement("i");
 
     input.setAttribute("type", "checkbox");
-    input.classList.add("form-check-input", "mx-2", "align-middle")
+    input.classList.add("form-check-input", "mx-2", "align-middle");
     input.setAttribute("id", "checkbox");
     label.textContent = value;
     label.classList.add("align-middle", "px-2");
-    label.setAttribute("position", "faire"); //creation de la position où se trouve l'élément
+    label.setAttribute("position", "faire"); //creation de la categorie où se trouve l'élément
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
-    poubelle.setAttribute("onclick", "supprimerTache()");
     poubelle.classList.add("btn", "btn-outline-danger", "mx-2");
     image.setAttribute("class", "bi bi-trash3");
-
 
     newLi.appendChild(input);
     newLi.appendChild(label);
     poubelle.appendChild(image);
     newLi.appendChild(poubelle);
     aFaire.appendChild(newLi);
+
     task.value = "";
+
+    return saveTask(value, label.getAttribute("position"));
 }
 
 function transfererTache(event) {
-
-
     let elementActif = event.target.nodeName;
     let elementParent = event.target.parentElement.id;
 
@@ -53,7 +72,8 @@ function transfererTache(event) {
         elementParent = event.target.parentElement.parentElement.id;
     }
 
-    if (elementParent === 'faire') { // de l'étape A FAIRE vers l'étape A VALIDER
+    if (elementParent === "faire") {
+        // de l'étape A FAIRE vers l'étape A VALIDER
         if (elementActif === "INPUT" || elementActif === "LABEL") {
             let parent = event.target.parentElement;
             let transfert = aFaire.removeChild(parent);
@@ -64,15 +84,15 @@ function transfererTache(event) {
             let transfert = aFaire.removeChild(parent);
             return faireTransfert(transfert, elementParent);
         }
-
     }
-    if (elementParent === 'validation') { //de l'étape A VALIDER vers l'étape TERMINEES
+    if (elementParent === "validation") {
+        //de l'étape A VALIDER vers l'étape TERMINEES
         if (elementActif === "INPUT" || elementActif === "LABEL") {
             let parent = event.target.parentElement;
             let transfert = aValider.removeChild(parent);
             return faireTransfert(transfert, elementParent);
-        } if (elementActif === "LI") {
-
+        }
+        if (elementActif === "LI") {
             let parent = event.target;
             let transfert = aValider.removeChild(parent);
             return faireTransfert(transfert, elementParent);
@@ -95,7 +115,6 @@ function faireTransfert(termine, source) {
 }
 
 function supprimerTache(event) {
-
     let elementParent = event.target.parentElement.parentElement.id;
 
     if (elementParent === "") {
@@ -125,7 +144,6 @@ function supprimerTache(event) {
     }
 
     if (elementParent === "terminees") {
-
         if (event.target.nodeName === "I") {
             elementParent = event.target.parentElement.parentElement;
             aTerminer.removeChild(elementParent);
@@ -137,7 +155,15 @@ function supprimerTache(event) {
     }
 }
 
-function save() {
-    //TODO  FAIRE CETTE FONCTION
+function saveTask(value, position) {
 
+    let nouvelleTache = { nomTache: value, position: position };
+    TASKS.push(nouvelleTache);
+    localStorage.setItem("task", JSON.stringify(TASKS));
+    console.log(TASKS);
+
+}
+
+function loadTask() {
+    return JSON.parse(localStorage.getItem("task"));
 }
