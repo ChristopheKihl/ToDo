@@ -11,16 +11,13 @@ if (TASKS === null) {
     TASKS = [];
 }
 
-// console.log(TASKS);
-
-
 for (let i = 0; i < TASKS.length; i++) {
 
     ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
 
 }
 
-
+task.addEventListener("keypress", keypress)
 button.addEventListener("click", () => { ajoutTache(task.value, "faire", 0) });
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
@@ -41,191 +38,189 @@ function ajoutTache(value, position, state, id) {
     input.setAttribute("id", "checkbox");
     label.textContent = value;
     label.classList.add("align-middle", "px-2");
-    label.setAttribute("position", position);
-    label.setAttribute("id", id) //creation de la categorie où se trouve l'élément
+    label.setAttribute("position", position); //creation de la categorie où se trouve l'élément
+    label.setAttribute("id", createId(id));
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
     poubelle.classList.add("btn", "btn-outline-danger", "mx-2");
     image.setAttribute("class", "bi bi-trash3");
 
-    if (position != "terminees"){
-    newLi.appendChild(input);
-}
-    newLi.appendChild(label);
-    poubelle.appendChild(image);
-    newLi.appendChild(poubelle);
+    if (value != "") {
+        if (position != "terminees") {
+            newLi.appendChild(input);
+        }
+        newLi.appendChild(label);
+        poubelle.appendChild(image);
+        newLi.appendChild(poubelle);
 
-    if (position === "faire") {
-        aFaire.appendChild(newLi);
-    }
+        if (position === "faire") {
+            aFaire.appendChild(newLi);
+        }
 
-    if (position === "validation") {
-        aValider.appendChild(newLi);
-    }
+        if (position === "validation") {
+            aValider.appendChild(newLi);
+        }
 
-    if (position === "terminees") {
-        aTerminer.appendChild(newLi);
-    }
+        if (position === "terminees") {
+            aTerminer.appendChild(newLi);
+        }
 
-    task.value = "";
+        task.value = "";
 
-    if (state === 0) {
-        return saveTask(value, label.getAttribute("position"), state);
+        if (state === 0) {
+            return saveTask(value, label.getAttribute("position"), state, label.getAttribute("id"));
+        }
     }
 }
 
 function transfererTache(event) {
-    let elementActif = event.target.nodeName;
-    let elementParent = event.target.parentElement.id;
+    let elementClique = event.target.nodeName;
+    let id;
+    let oldPosition;
+    let newPosition;
+    let element;
+    event.stopPropagation();
 
 
-    if (elementParent === "") {
-        elementParent = event.target.parentElement.parentElement.id;
+    if (elementClique === "INPUT") {
+        id = event.target.nextElementSibling.getAttribute("id");
+        oldPosition = event.target.nextElementSibling.getAttribute("position");
+        element = event.target.parentElement;
     }
 
-    if (elementParent === "faire") {
-        // de l'étape A FAIRE vers l'étape A VALIDER
-        if (elementActif === "INPUT" || elementActif === "LABEL") {
-            let parent = event.target.parentElement;
-            let transfert = aFaire.removeChild(parent);
-
-            return faireTransfert(transfert, elementParent);
-        }
-        if (elementActif === "LI") {
-            let parent = event.target;
-            let transfert = aFaire.removeChild(parent);
-
-            return faireTransfert(transfert, elementParent);
-        }
-    }
-    if (elementParent === "validation") {
-        //de l'étape A VALIDER vers l'étape TERMINEES
-        if (elementActif === "INPUT" || elementActif === "LABEL") {
-            let parent = event.target.parentElement;
-            let transfert = aValider.removeChild(parent);
-
-            return faireTransfert(transfert, elementParent);
-        }
-        if (elementActif === "LI") {
-            let parent = event.target;
-            let transfert = aValider.removeChild(parent);
-
-            return faireTransfert(transfert, elementParent);
-        }
-    }
-}
-
-function faireTransfert(termine, source) {
-    let destination;
-    let value;
-    let position;
-
-    if (source === "faire") {
-        destination = document.getElementById("validation");
-        let destinationId = destination.getAttribute("id");
-
-
-        if (event.target.nodeName === "LABEL") {
-            event.target.setAttribute("position", destinationId);
-        }
-        if (event.target.nodeName === "INPUT") {
-            event.target.nextElementSibling.setAttribute("position", destinationId);
-        }
-        value = termine.firstChild.nextElementSibling.getAttribute("id");
-        position = termine.firstChild.nextElementSibling.getAttribute("position");
+    if (elementClique === "LABEL") {
+        id = event.target.getAttribute("id");
+        oldPosition = event.target.getAttribute("position");
+        element = event.target.parentElement;
     }
 
-    if (source === "validation") {
-        destination = document.getElementById("terminees");
-        let destinationId = destination.getAttribute("id");
-
-
-        if (event.target.nodeName === "LABEL") {
-            event.target.setAttribute("position", destinationId);
-        }
-        if (event.target.nodeName === "INPUT") {
-            event.target.nextElementSibling.setAttribute("position", destinationId);
-        }
-        value = termine.firstChild.nextElementSibling.getAttribute("id");
-        position = termine.firstChild.nextElementSibling.getAttribute("position");
-
-        let suppr = termine.firstChild;
-        termine.removeChild(suppr);
+    if (elementClique === "LI") {
+        id = event.target.firstChild.nextElementSibling.getAttribute("id");
+        oldPosition = event.target.firstChild.nextElementSibling.getAttribute("position");
+        element = event.target;
     }
-    destination.appendChild(termine);
-    saveTask(value, position, 1);
+
+    if (oldPosition === "faire") {
+        TASKS.forEach(changePosition => {
+            if (changePosition.id === id) {
+                newPosition = "validation"
+                changePosition.position = newPosition;
+            }
+        })
+
+        element.firstChild.nextElementSibling.setAttribute("position", newPosition);
+        aFaire.removeChild(element);
+        aValider.appendChild(element);
+    }
+
+    if (oldPosition === "validation") {
+        TASKS.forEach(changePosition => {
+            if (changePosition.id === id) {
+                newPosition = "terminees"
+                changePosition.position = newPosition;
+            }
+        })
+        element.removeChild(element.firstChild);
+        aValider.removeChild(element)
+        aTerminer.appendChild(element)
+    }
+
+    saveTask(id, newPosition, 1);
+
 }
 
 function supprimerTache(event) {
-    let elementParent = event.target.parentElement.parentElement.id;
 
-    if (elementParent === "") {
-        elementParent = event.target.parentElement.parentElement.parentElement.id;
-    }
+    let elementClique = event.target.nodeName;
+    let id;
+    let element;
 
-    if (elementParent === "faire") {
-        if (event.target.nodeName === "I") {
-            elementParent = event.target.parentElement.parentElement;
-            aFaire.removeChild(elementParent);
-        }
-        if (event.target.nodeName === "BUTTON") {
-            elementParent = event.target.parentElement;
-            aFaire.removeChild(elementParent);
-        }
-    }
+    if (elementClique === "I") {
+        let position = event.target.parentElement.parentElement.firstChild.getAttribute("position");
 
-    if (elementParent === "validation") {
-        if (event.target.nodeName === "I") {
-            elementParent = event.target.parentElement.parentElement;
-            aValider.removeChild(elementParent);
-        }
-        if (event.target.nodeName === "BUTTON") {
-            elementParent = event.target.parentElement;
-            aValider.removeChild(elementParent);
-        }
-    }
+        id = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("id");
+        element = event.target.parentElement.parentElement;
 
-    if (elementParent === "terminees") {
-        if (event.target.nodeName === "I") {
-            elementParent = event.target.parentElement.parentElement;
-            aTerminer.removeChild(elementParent);
+        if (position === "terminees") {
+            id = event.target.parentElement.parentElement.firstChild.getAttribute("id");
         }
-        if (event.target.nodeName === "BUTTON") {
-            elementParent = event.target.parentElement;
-            aTerminer.removeChild(elementParent);
+
+    };
+
+    if (elementClique === "BUTTON") {
+        id = event.target.parentElement.firstChild.nextElementSibling.getAttribute("id");
+        element = event.target.parentElement;
+    };
+
+    TASKS.forEach(suppressionTask => {
+        if (suppressionTask.id === id) {
+            saveTask(id, '', 2);
+        };
+
+    })
+}
+
+function createId(id) {
+    let myId = id;
+
+    if (myId) {
+        return myId;
+    } else {
+        TASKS.forEach(dernier => {
+            myId = 1 + parseInt(dernier.id);
+        });
+
+        if (myId === undefined) {
+            myId = 0;
         }
+        return myId;
     }
 }
 
+function saveTask(value, position, state, id) {
 
-function saveTask(value, position, state) {
-
-
-    let lastId;
-
-    TASKS.forEach(dernier => {
-        lastId = dernier.id + 1
-    });
-    
-
-    if (state === 0) {
-        let nouvelleTache = { id: lastId, nomTache: value, position: position };
+    if (state === 0) { // création d'une nouvelle tâche
+        let nouvelleTache = { id: id, nomTache: value, position: position };
         TASKS.push(nouvelleTache);
         localStorage.setItem("task", JSON.stringify(TASKS));
 
-    } if (state === 1 ) {
+    } if (state === 1) { //modification de la position de la tâche
         TASKS.forEach(valeur => {
             if (valeur.id == value) {
                 valeur.position = position;
             };
         });
-        // localStorage.setItem("task", JSON.stringify(TASKS)); //! NE PAS OUBLIER D'ENLEVER LE COMMENTAIRE
 
+        localStorage.setItem("task", JSON.stringify(TASKS));
+    }
+    if (state === 2) { // supression de la tâche
 
+        TASKS.forEach(valeur => { // suppression des clé de TASKS
+            if (valeur.id == value) {
+                delete valeur.id;
+                delete valeur.nomTache;
+                delete valeur.position;
+            }
+        })
+
+        for (let i = 0; i < TASKS.length; i++) { // suppression de l'objet vide
+            if (Object.keys(TASKS[i]).length === 0) {
+                TASKS.splice(i, 1);
+            }
+        }
     }
 
+    localStorage.setItem("task", JSON.stringify(TASKS));
+    location.reload();
 }
 
 function loadTask() {
     return JSON.parse(localStorage.getItem("task"));
+}
+
+function keypress(event){
+
+    if (event.code === "Enter" || event.code ==="NumpadEnter"){
+        ajoutTache(task.value, "faire", 0);
+    }
 }
