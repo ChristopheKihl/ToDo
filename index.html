@@ -15,24 +15,25 @@
     <title>Ma ToDo List</title>
 </head>
 
-<body>
-    <section class="row">
-        <article class="col-12 fs-1 text-center border border-black">Ma TODO list</article>
+<body class="bg-black bg-opacity-75 text-white">
+    <section class="bg-black row mb-5">
+        <article class="col-12 fs-1 text-center border border-white border-top-0">Ma TODO list</article>
     </section>
 
     <form action="">
-        <section class=" row mt-3">
+        <section class="row">
             <section class="col-5 m-auto">
                 <article class="text-center bg-secondary bg-gradient rounded-top-3 fs-5 m-auto">Nouvelle tâche</article>
                 <article
                     class=" text-center bg-secondary bg-gradient bg-opacity-25 border border-secondary border-2 border-top-0 rounded-bottom-3">
                     <article class="form-floating text-center col-5 m-auto p-2">
                         <input type="text" class="form-control" id="task" placeholder="Saisir votre tâche">
-                        <label class="m-2" for="task">Saisir votre tâche</label>
+                        <label class="m-2 text-black" for="task">Saisir votre tâche</label>
                     </article>
                     <section class="row">
                         <article class="col-2 p-2 m-auto">
-                            <button id="validate" type="button" class="btn btn-outline-success">Valider</button>
+                            <button id="validate" type="button"
+                                class="btn btn-outline-success bg-black bg-opacity-50">Valider</button>
                         </article>
                     </section>
                     <hr class="border border-danger border-1 opacity-25 mx-4">
@@ -41,11 +42,11 @@
                             Vous voulez trier par :
                         </article>
                         <article class="col-5 m-auto mb-2">
-                            <select class="form-select form-select-sm" aria-label="Small select example">
+                            <select id="tri" class="form-select form-select-sm">
                                 <option value="1">Tous</option>
                                 <option value="2">A faire</option>
                                 <option value="3">A valider</option>
-                                <option value="3">Terminées</option>
+                                <option value="4">Terminées</option>
                             </select>
                         </article>
                 </article>
@@ -53,9 +54,9 @@
             </section>
         </section>
     </form>
-
+    <hr class="border border-black border-2 opacity-25 mx-4 mt-5">
     <section class="row mt-5 m-auto">
-        <section class="col-4 m-auto">
+        <section class="col-4 m-auto mt-0">
             <article class="bg-info bg-gradient text-center text-uppercase fs-5 rounded-top-4">A faire</article>
             <article
                 class="bg-info bg-gradient bg-opacity-25 border border-info border-2 border-top-0 rounded-bottom-3 pt-2">
@@ -64,7 +65,7 @@
             </article>
         </section>
 
-        <section class="col-4 m-auto">
+        <section class="col-4 m-auto mt-0">
             <article class="bg-danger bg-gradient text-center text-uppercase fs-5 rounded-top-4">A valider
             </article>
             <article
@@ -74,7 +75,7 @@
             </article>
         </section>
 
-        <section class="col-4 m-auto">
+        <section class="col-4 m-auto mt-0">
             <article class="bg-success bg-gradient text-center text-uppercase fs-5 rounded-top-4">Terminées</article>
             <article
                 class="bg-success bg-gradient bg-opacity-25 border border-success border-2 border-top-0 rounded-bottom-3 pt-2">

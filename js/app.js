@@ -4,6 +4,12 @@ let aValider = document.getElementById("validation");
 let aTerminer = document.getElementById("terminees");
 let button = document.getElementById("validate");
 let checkbox = document.getElementsByClassName("form-check-input");
+let option = JSON.parse(localStorage.getItem("option"));
+
+console.log(option);
+
+console.log("option", option);
+
 
 let TASKS = loadTask();
 
@@ -11,21 +17,22 @@ if (TASKS === null) {
     TASKS = [];
 }
 
-for (let i = 0; i < TASKS.length; i++) {
+for (let i = 0; i < TASKS.length; i++) { // boucle récupérant les données existantes dans le LocalStorage
 
     ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
 
 }
 
-task.addEventListener("keypress", keypress)
+task.addEventListener("keypress", keypress); // Reaction à l'appui sur la touche Enter ou NumpadEnter
 button.addEventListener("click", () => { ajoutTache(task.value, "faire", 0) });
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
 aFaire.addEventListener("click", supprimerTache);
 aValider.addEventListener("click", supprimerTache);
 aTerminer.addEventListener("click", supprimerTache);
+tri.addEventListener("change", trier);
 
-function ajoutTache(value, position, state, id) {
+function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tache + formattage des données existantes
     let newLi = document.createElement("li");
     let input = document.createElement("input");
     let label = document.createElement("label");
@@ -38,8 +45,8 @@ function ajoutTache(value, position, state, id) {
     input.setAttribute("id", "checkbox");
     label.textContent = value;
     label.classList.add("align-middle", "px-2");
-    label.setAttribute("position", position); //creation de la categorie où se trouve l'élément
-    label.setAttribute("id", createId(id));
+    label.setAttribute("position", position); // Creation de la categorie où se trouve l'élément
+    label.setAttribute("id", createId(id)); // Création d'un nouvel ID ou recupération de l'ID existant
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
     poubelle.classList.add("btn", "btn-outline-danger", "mx-2");
@@ -49,9 +56,9 @@ function ajoutTache(value, position, state, id) {
         if (position != "terminees") {
             newLi.appendChild(input);
         }
-        newLi.appendChild(label);
-        poubelle.appendChild(image);
-        newLi.appendChild(poubelle);
+        newLi.appendChild(label);     //<=|
+        poubelle.appendChild(image);  // Structuration HTML de ma tâche
+        newLi.appendChild(poubelle);  //<=|
 
         if (position === "faire") {
             aFaire.appendChild(newLi);
@@ -73,7 +80,7 @@ function ajoutTache(value, position, state, id) {
     }
 }
 
-function transfererTache(event) {
+function transfererTache(event) { // Transfert es tâches vers une autre catégorie
     let elementClique = event.target.nodeName;
     let id;
     let oldPosition;
@@ -129,7 +136,7 @@ function transfererTache(event) {
 
 }
 
-function supprimerTache(event) {
+function supprimerTache(event) { // Supprime une tâche
 
     let elementClique = event.target.nodeName;
     let id;
@@ -156,11 +163,10 @@ function supprimerTache(event) {
         if (suppressionTask.id === id) {
             saveTask(id, '', 2);
         };
-
     })
 }
 
-function createId(id) {
+function createId(id) { // Créé un ID unique
     let myId = id;
 
     if (myId) {
@@ -177,24 +183,22 @@ function createId(id) {
     }
 }
 
-function saveTask(value, position, state, id) {
+function saveTask(value, position, state, id) { // Sauvegarde des données dans le LocalStorage 
 
     if (state === 0) { // création d'une nouvelle tâche
         let nouvelleTache = { id: id, nomTache: value, position: position };
         TASKS.push(nouvelleTache);
         localStorage.setItem("task", JSON.stringify(TASKS));
-
     } if (state === 1) { //modification de la position de la tâche
         TASKS.forEach(valeur => {
             if (valeur.id == value) {
                 valeur.position = position;
             };
         });
-
         localStorage.setItem("task", JSON.stringify(TASKS));
     }
-    if (state === 2) { // supression de la tâche
 
+    if (state === 2) { // supression de la tâche
         TASKS.forEach(valeur => { // suppression des clé de TASKS
             if (valeur.id == value) {
                 delete valeur.id;
@@ -209,18 +213,78 @@ function saveTask(value, position, state, id) {
             }
         }
     }
-
     localStorage.setItem("task", JSON.stringify(TASKS));
-    location.reload();
+    reload();
 }
 
-function loadTask() {
+function loadTask() { // Récupére les données dans le LocalStorage
     return JSON.parse(localStorage.getItem("task"));
 }
 
-function keypress(event){
+function keypress(event) { //Fonction qui réagit lorsque l'on presse la touche Enter ou NumpadEnter
 
-    if (event.code === "Enter" || event.code ==="NumpadEnter"){
+    if (event.code === "Enter" || event.code === "NumpadEnter") {
         ajoutTache(task.value, "faire", 0);
     }
+}
+
+function trier(event) { // Fonction permettant le tri
+    option = parseInt(event.target.value);
+
+    switch (option) {
+        case 1:
+            aFaire.parentElement.parentElement.classList.remove("d-none");
+            aValider.parentElement.parentElement.classList.remove("d-none");
+            aTerminer.parentElement.parentElement.classList.remove("d-none");
+            localStorage.setItem("option", JSON.stringify(option));
+            event.target.children[(option-1)].setAttribute("selected","");
+            event.target.children[(1)].removeAttribute("selected");
+            event.target.children[(2)].removeAttribute("selected");
+            event.target.children[(3)].removeAttribute("selected");
+            console.log(event.target.children[(option-1)]);
+            break;
+
+        case 2:
+            aFaire.parentElement.parentElement.classList.remove("d-none");
+            aValider.parentElement.parentElement.classList.add("d-none");
+            aTerminer.parentElement.parentElement.classList.add("d-none");
+            localStorage.setItem("option", JSON.stringify(option));
+            event.target.children[(0)].removeAttribute("selected");
+            event.target.children[(option-1)].setAttribute("selected","");
+            event.target.children[(2)].removeAttribute("selected");
+            event.target.children[(3)].removeAttribute("selected");
+            console.log(event.target.children[(option-1)]);
+            break;
+
+        case 3:
+            aFaire.parentElement.parentElement.classList.add("d-none");
+            aValider.parentElement.parentElement.classList.remove("d-none");
+            aTerminer.parentElement.parentElement.classList.add("d-none");
+            localStorage.setItem("option", JSON.stringify(option));
+            event.target.children[(0)].removeAttribute("selected");
+            event.target.children[(1)].removeAttribute("selected");
+            event.target.children[(option-1)].setAttribute("selected","");
+            event.target.children[(3)].removeAttribute("selected");
+            console.log(event.target.children[(option-1)]);
+            
+            break;
+
+        case 4:
+            aFaire.parentElement.parentElement.classList.add("d-none");
+            aValider.parentElement.parentElement.classList.add("d-none");
+            aTerminer.parentElement.parentElement.classList.remove("d-none");
+            localStorage.setItem("option", JSON.stringify(option));
+            event.target.children[(0)].removeAttribute("selected");
+            event.target.children[(1)].removeAttribute("selected");
+            event.target.children[(2)].removeAttribute("selected");
+            event.target.children[(option-1)].setAttribute("selected","");
+            break;
+
+        default:
+            break;
+    }
+}
+
+function reload(){
+    location.reload();
 }
