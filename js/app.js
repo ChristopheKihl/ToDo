@@ -1,17 +1,13 @@
-let task = document.getElementById("task");
-let aFaire = document.getElementById("faire");
-let aValider = document.getElementById("validation");
-let aTerminer = document.getElementById("terminees");
-let button = document.getElementById("validate");
-let checkbox = document.getElementsByClassName("form-check-input");
-let option = JSON.parse(localStorage.getItem("option"));
-
-console.log(option);
-
-console.log("option", option);
-
+const task = document.getElementById("task");
+const aFaire = document.getElementById("faire");
+const aValider = document.getElementById("validation");
+const aTerminer = document.getElementById("terminees");
+const button = document.getElementById("validate");
+const checkbox = document.getElementsByClassName("form-check-input");
+const information = document.getElementsByClassName("modale");
 
 let TASKS = loadTask();
+
 
 if (TASKS === null) {
     TASKS = [];
@@ -23,16 +19,16 @@ for (let i = 0; i < TASKS.length; i++) { // boucle récupérant les données exi
 
 }
 
-task.addEventListener("keypress", keypress); // Reaction à l'appui sur la touche Enter ou NumpadEnter
+task.addEventListener("keypress", keypress); // Appel de la fontion sur un appui de touche
 button.addEventListener("click", () => { ajoutTache(task.value, "faire", 0) });
 aFaire.addEventListener("click", transfererTache);
 aValider.addEventListener("click", transfererTache);
 aFaire.addEventListener("click", supprimerTache);
 aValider.addEventListener("click", supprimerTache);
 aTerminer.addEventListener("click", supprimerTache);
-tri.addEventListener("change", trier);
+tri.addEventListener("click", trier);
 
-function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tache + formattage des données existantes
+function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tâche + formatage des données existantes
     let newLi = document.createElement("li");
     let input = document.createElement("input");
     let label = document.createElement("label");
@@ -44,12 +40,12 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tache +
     input.classList.add("form-check-input", "mx-2", "align-middle");
     input.setAttribute("id", "checkbox");
     label.textContent = value;
-    label.classList.add("align-middle", "px-2");
+    label.classList.add("align-middle", "px-2", "col-8");
     label.setAttribute("position", position); // Creation de la categorie où se trouve l'élément
     label.setAttribute("id", createId(id)); // Création d'un nouvel ID ou recupération de l'ID existant
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
-    poubelle.classList.add("btn", "btn-outline-danger", "mx-2");
+    poubelle.classList.add("btn", "btn-outline-danger", "my-1");
     image.setAttribute("class", "bi bi-trash3");
 
     if (value != "") {
@@ -74,20 +70,21 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tache +
 
         task.value = "";
 
+
         if (state === 0) {
+            afficherMessage("Nouvelle tâche", "Votre nouvelle tâche a été ajoutée")
             return saveTask(value, label.getAttribute("position"), state, label.getAttribute("id"));
         }
+        return
     }
 }
 
-function transfererTache(event) { // Transfert es tâches vers une autre catégorie
+function transfererTache(event) { // Transfert des tâches vers une autre catégorie
     let elementClique = event.target.nodeName;
     let id;
     let oldPosition;
     let newPosition;
     let element;
-    event.stopPropagation();
-
 
     if (elementClique === "INPUT") {
         id = event.target.nextElementSibling.getAttribute("id");
@@ -118,6 +115,8 @@ function transfererTache(event) { // Transfert es tâches vers une autre catégo
         element.firstChild.nextElementSibling.setAttribute("position", newPosition);
         aFaire.removeChild(element);
         aValider.appendChild(element);
+        element.firstChild.checked = false;
+        
     }
 
     if (oldPosition === "validation") {
@@ -131,9 +130,8 @@ function transfererTache(event) { // Transfert es tâches vers une autre catégo
         aValider.removeChild(element)
         aTerminer.appendChild(element)
     }
-
-    saveTask(id, newPosition, 1);
-
+    afficherMessage("Transfert", "Votre tâche a bien été transférée");
+    return saveTask(id, newPosition, 1); //! enlever le commentaire
 }
 
 function supprimerTache(event) { // Supprime une tâche
@@ -141,6 +139,7 @@ function supprimerTache(event) { // Supprime une tâche
     let elementClique = event.target.nodeName;
     let id;
     let element;
+console.log(elementClique);
 
     if (elementClique === "I") {
         let position = event.target.parentElement.parentElement.firstChild.getAttribute("position");
@@ -151,22 +150,25 @@ function supprimerTache(event) { // Supprime une tâche
         if (position === "terminees") {
             id = event.target.parentElement.parentElement.firstChild.getAttribute("id");
         }
-
+        
+        afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
     };
 
     if (elementClique === "BUTTON") {
         id = event.target.parentElement.firstChild.nextElementSibling.getAttribute("id");
         element = event.target.parentElement;
+        afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
     };
+
 
     TASKS.forEach(suppressionTask => {
         if (suppressionTask.id === id) {
-            saveTask(id, '', 2);
+            return saveTask(id, '', 2);
         };
     })
 }
 
-function createId(id) { // Créé un ID unique
+function createId(id) { // Créé un ID unique ou récupération d'un ID existant
     let myId = id;
 
     if (myId) {
@@ -195,7 +197,7 @@ function saveTask(value, position, state, id) { // Sauvegarde des données dans 
                 valeur.position = position;
             };
         });
-        localStorage.setItem("task", JSON.stringify(TASKS));
+        return localStorage.setItem("task", JSON.stringify(TASKS));
     }
 
     if (state === 2) { // supression de la tâche
@@ -212,9 +214,9 @@ function saveTask(value, position, state, id) { // Sauvegarde des données dans 
                 TASKS.splice(i, 1);
             }
         }
+        localStorage.setItem("task", JSON.stringify(TASKS));
+        return reload();
     }
-    localStorage.setItem("task", JSON.stringify(TASKS));
-    reload();
 }
 
 function loadTask() { // Récupére les données dans le LocalStorage
@@ -224,12 +226,12 @@ function loadTask() { // Récupére les données dans le LocalStorage
 function keypress(event) { //Fonction qui réagit lorsque l'on presse la touche Enter ou NumpadEnter
 
     if (event.code === "Enter" || event.code === "NumpadEnter") {
-        ajoutTache(task.value, "faire", 0);
+        return ajoutTache(task.value, "faire", 0);
     }
 }
 
 function trier(event) { // Fonction permettant le tri
-    option = parseInt(event.target.value);
+    let option = parseInt(event.target.value);
 
     switch (option) {
         case 1:
@@ -237,11 +239,7 @@ function trier(event) { // Fonction permettant le tri
             aValider.parentElement.parentElement.classList.remove("d-none");
             aTerminer.parentElement.parentElement.classList.remove("d-none");
             localStorage.setItem("option", JSON.stringify(option));
-            event.target.children[(option-1)].setAttribute("selected","");
-            event.target.children[(1)].removeAttribute("selected");
-            event.target.children[(2)].removeAttribute("selected");
-            event.target.children[(3)].removeAttribute("selected");
-            console.log(event.target.children[(option-1)]);
+            event.target.children[(option - 1)].setAttribute("selected", "");
             break;
 
         case 2:
@@ -249,11 +247,7 @@ function trier(event) { // Fonction permettant le tri
             aValider.parentElement.parentElement.classList.add("d-none");
             aTerminer.parentElement.parentElement.classList.add("d-none");
             localStorage.setItem("option", JSON.stringify(option));
-            event.target.children[(0)].removeAttribute("selected");
-            event.target.children[(option-1)].setAttribute("selected","");
-            event.target.children[(2)].removeAttribute("selected");
-            event.target.children[(3)].removeAttribute("selected");
-            console.log(event.target.children[(option-1)]);
+            event.target.children[(option - 1)].setAttribute("selected", "");
             break;
 
         case 3:
@@ -261,12 +255,7 @@ function trier(event) { // Fonction permettant le tri
             aValider.parentElement.parentElement.classList.remove("d-none");
             aTerminer.parentElement.parentElement.classList.add("d-none");
             localStorage.setItem("option", JSON.stringify(option));
-            event.target.children[(0)].removeAttribute("selected");
-            event.target.children[(1)].removeAttribute("selected");
-            event.target.children[(option-1)].setAttribute("selected","");
-            event.target.children[(3)].removeAttribute("selected");
-            console.log(event.target.children[(option-1)]);
-            
+            event.target.children[(option - 1)].setAttribute("selected", "");
             break;
 
         case 4:
@@ -274,10 +263,7 @@ function trier(event) { // Fonction permettant le tri
             aValider.parentElement.parentElement.classList.add("d-none");
             aTerminer.parentElement.parentElement.classList.remove("d-none");
             localStorage.setItem("option", JSON.stringify(option));
-            event.target.children[(0)].removeAttribute("selected");
-            event.target.children[(1)].removeAttribute("selected");
-            event.target.children[(2)].removeAttribute("selected");
-            event.target.children[(option-1)].setAttribute("selected","");
+            event.target.children[(option - 1)].setAttribute("selected", "");
             break;
 
         default:
@@ -285,6 +271,15 @@ function trier(event) { // Fonction permettant le tri
     }
 }
 
-function reload(){
+function reload() { // Rafraichit la page
     location.reload();
+}
+
+function afficherMessage(titre, message) { // Permet d'afficher une modale avec des informations
+    information[0].classList.toggle("informations");
+    information[0].firstElementChild.textContent = titre;
+    information[0].firstElementChild.nextElementSibling.textContent = message;
+    setTimeout(() => {
+        information[0].classList.remove("informations")
+    }, "6000");
 }

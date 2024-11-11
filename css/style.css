@@ -7,6 +7,12 @@ li:hover {
     font-weight: 700;
     border-radius: 25px;
     cursor: pointer;
+}
 
-
+.modale {
+    z-index: -1;
+    position: absolute;
+    width: 300px;
+    top: -50px;
+    right: 50px;
 }
