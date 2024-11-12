@@ -12,6 +12,10 @@ if (TASKS === null) {
     TASKS = [];
 }
 
+//TODO Faire la fonction qui permet de revenir en arrière (fonction Back)
+//TODO Faire la fontion qui va me permettre de reconstruire la tache (faire > valider > terminée OU terminée > valider > faire)
+
+
 for (let i = 0; i < TASKS.length; i++) { // boucle récupérant les données existantes dans le LocalStorage
     ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
 }
@@ -30,27 +34,41 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tâche 
     let input = document.createElement("input");
     let label = document.createElement("label");
     let poubelle = document.createElement("button");
-    let image = document.createElement("i");
+    let imageTrash = document.createElement("i");
+    let back = document.createElement("button");
+    let imageBack = document.createElement("i");
 
     input.setAttribute("type", "checkbox");
     input.classList.add("form-check-input", "mx-2", "align-middle");
     input.setAttribute("id", "checkbox");
     label.textContent = value;
-    label.classList.add("align-middle", "px-2", "col-8");
+    label.classList.add("align-middle", "px-2", "col-9");
     label.setAttribute("position", position); // Creation de la categorie où se trouve l'élément
     label.setAttribute("id", createId(id)); // Création d'un nouvel ID ou recupération de l'ID existant
+    id = label.getAttribute("id");
+    back.setAttribute("type", "button");
+    back.setAttribute("id", "back");
+    back.classList.add("btn", "btn-outline-success", "my-1", "me-1");
+    imageBack.setAttribute("class", "bi bi-skip-backward");
     poubelle.setAttribute("type", "button");
     poubelle.setAttribute("id", "trash");
     poubelle.classList.add("btn", "btn-outline-danger", "my-1");
-    image.setAttribute("class", "bi bi-trash3");
+    imageTrash.setAttribute("class", "bi bi-trash3");
 
     if (value != "") {
         if (position != "terminees") {
             newLi.appendChild(input);
         }
-        newLi.appendChild(label);     //<=|
-        poubelle.appendChild(image);  // Structuration HTML de ma tâche
-        newLi.appendChild(poubelle);  //<=|
+
+        newLi.appendChild(label);
+
+        if (position != "faire") {          // <==  |
+            back.appendChild(imageBack);    //      |
+            newLi.appendChild(back);        //      |
+        }                                   //      |
+
+        poubelle.appendChild(imageTrash);   // Structuration HTML de ma tâche
+        newLi.appendChild(poubelle);        //<=|   |
 
         if (position === "faire") {
             aFaire.appendChild(newLi);
@@ -66,11 +84,19 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tâche 
 
         task.value = "";
 
-        if (state === 0) {
-            afficherMessage("Nouvelle tâche", "Votre nouvelle tâche a été ajoutée")
-            return saveTask(value, label.getAttribute("position"), state, label.getAttribute("id"));
-        }
-        return
+        if (state === 0) { // Création d'une nouvelle tâche 
+            afficherMessage("Nouvelle tâche", "Votre nouvelle tâche a été ajoutée");
+            let nouvelleTache = { id: id, nomTache: value, position: position };
+            TASKS.push(nouvelleTache);
+            return saveTask();
+        };
+        // if (state === 1) { //modification de la position de la tâche
+        //     TASKS.forEach(valeur => {
+        //         if (valeur.id == value) {
+        //             valeur.position = position;
+        //         };
+        //     });
+        // }
     }
 }
 
@@ -80,8 +106,15 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
     let oldPosition;
     let newPosition;
     let element;
+    let back = document.createElement("button");
+
+    console.log(elementClique);
+    console.log(event.target.parentElement);
+
+
 
     if (elementClique === "INPUT") {
+
         id = event.target.nextElementSibling.getAttribute("id");
         oldPosition = event.target.nextElementSibling.getAttribute("position");
         element = event.target.parentElement;
@@ -100,17 +133,19 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
     }
 
     if (oldPosition === "faire") {
-        TASKS.forEach(changePosition => {
-            if (changePosition.id === id) {
-                newPosition = "validation"
-                changePosition.position = newPosition;
-            }
-        })
 
-        element.firstChild.nextElementSibling.setAttribute("position", newPosition);
-        aFaire.removeChild(element);
-        aValider.appendChild(element);
-        element.firstChild.checked = false;
+
+        // TASKS.forEach(changePosition => { //!! Enlver les commentaires
+        //     if (changePosition.id === id) {
+        //         newPosition = "validation"
+        //         changePosition.position = newPosition;
+        //     }
+        // })
+
+        // element.firstChild.nextElementSibling.setAttribute("position", newPosition);
+        // aFaire.removeChild(element);
+        // aValider.appendChild(element);
+        // element.firstChild.checked = false;
     }
 
     if (oldPosition === "validation") {
@@ -125,89 +160,75 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
         aTerminer.appendChild(element)
     }
     afficherMessage("Transfert", "Votre tâche a bien été transférée");
-    return saveTask(id, newPosition, 1);
+
+    //return saveTask(); // ! Enlever le commentaire 
 }
 
 function supprimerTache(event) { // Supprime une tâche
 
-    let elementClique = event.target.nodeName;
-    let id;
-    let element;
+    //     let elementClique = event.target.nodeName; // ! Enlver les commentaires
+    //     let id;
+    //     let element;
 
-    if (elementClique === "I") {
-        let position = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("position");
+    //     if (elementClique === "I") {
+    //         let position = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("position");
 
-        id = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("id");
-        element = event.target.parentElement.parentElement;
+    //         id = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("id");
+    //         element = event.target.parentElement.parentElement;
 
-        if (position === null) {
-            id = event.target.parentElement.parentElement.firstChild.getAttribute("id");
-        }
-        afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
-    };
+    //         if (position === null) {
+    //             id = event.target.parentElement.parentElement.firstChild.getAttribute("id");
+    //         }
+    //         afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
+    //     };
 
-    if (elementClique === "BUTTON") {
-        id = event.target.parentElement.firstChild.nextElementSibling.getAttribute("id");
-        element = event.target.parentElement;
-        afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
-    };
+    //     if (elementClique === "BUTTON") {
+    //         id = event.target.parentElement.firstChild.nextElementSibling.getAttribute("id");
+    //         element = event.target.parentElement;
+    //         afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
+    //     };
 
-    TASKS.forEach(suppressionTask => {
-        if (suppressionTask.id === id) {
-            return saveTask(id, '', 2);
-        };
-    })
+    //     TASKS.forEach(valeur => { // suppression des clé de TASKS
+    //         if (valeur.id == id) {
+    //             delete valeur.id;
+    //             delete valeur.nomTache;
+    //             delete valeur.position;
+    //         }
+    //     });
+
+    //     for (let i = 0; i < TASKS.length; i++) { // suppression de l'objet vide
+    //         if (Object.keys(TASKS[i]).length === 0) {
+    //             TASKS.splice(i, 1);
+    //         }
+    //     };
+
+    //     if (elementClique === "I" || elementClique === "BUTTON") {
+    //         location.reload();
+    //     }
+
+    //     return saveTask();
 }
 
 function createId(id) { // Créé un ID unique ou récupération d'un ID existant
-    let myId = id;
 
-    if (myId) {
-        return myId;
+    if (id) {
+        return id;
     } else {
         TASKS.forEach(dernier => {
-            myId = 1 + parseInt(dernier.id);
+            id = 1 + parseInt(dernier.id);
         });
 
-        if (myId === undefined) {
-            myId = 0;
+        if (id == undefined) {
+            id = 0;
         }
-        return myId;
+        return id;
     }
 }
 
-function saveTask(value, position, state, id) { // Sauvegarde des données dans le LocalStorage 
+function saveTask() { // Sauvegarde des données dans le LocalStorage 
 
-    if (state === 0) { // création d'une nouvelle tâche
-        let nouvelleTache = { id: id, nomTache: value, position: position };
-        TASKS.push(nouvelleTache);
-        localStorage.setItem("task", JSON.stringify(TASKS));
-    } if (state === 1) { //modification de la position de la tâche
-        TASKS.forEach(valeur => {
-            if (valeur.id == value) {
-                valeur.position = position;
-            };
-        });
-        return localStorage.setItem("task", JSON.stringify(TASKS));
-    }
-
-    if (state === 2) { // supression de la tâche
-        TASKS.forEach(valeur => { // suppression des clé de TASKS
-            if (valeur.id == value) {
-                delete valeur.id;
-                delete valeur.nomTache;
-                delete valeur.position;
-            }
-        })
-
-        for (let i = 0; i < TASKS.length; i++) { // suppression de l'objet vide
-            if (Object.keys(TASKS[i]).length === 0) {
-                TASKS.splice(i, 1);
-            }
-        }
-        localStorage.setItem("task", JSON.stringify(TASKS));
-        return reload();
-    }
+    localStorage.setItem("task", JSON.stringify(TASKS));
+    // return reload();
 }
 
 function loadTask() { // Récupére les données dans le LocalStorage
@@ -264,10 +285,6 @@ function trier(event) { // Fonction permettant le tri
         default:
             break;
     }
-}
-
-function reload() { // Rafraichit la page
-    location.reload();
 }
 
 function afficherMessage(titre, message) { // Permet d'afficher une modale avec des informations
