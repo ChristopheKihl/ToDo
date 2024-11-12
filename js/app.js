@@ -8,15 +8,12 @@ const information = document.getElementsByClassName("modale");
 
 let TASKS = loadTask();
 
-
 if (TASKS === null) {
     TASKS = [];
 }
 
 for (let i = 0; i < TASKS.length; i++) { // boucle récupérant les données existantes dans le LocalStorage
-
     ajoutTache(TASKS[i].nomTache, TASKS[i].position, 1, TASKS[i].id);
-
 }
 
 task.addEventListener("keypress", keypress); // Appel de la fontion sur un appui de touche
@@ -34,7 +31,6 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tâche 
     let label = document.createElement("label");
     let poubelle = document.createElement("button");
     let image = document.createElement("i");
-
 
     input.setAttribute("type", "checkbox");
     input.classList.add("form-check-input", "mx-2", "align-middle");
@@ -69,7 +65,6 @@ function ajoutTache(value, position, state, id) { // Ajoute une nouvelle tâche 
         }
 
         task.value = "";
-
 
         if (state === 0) {
             afficherMessage("Nouvelle tâche", "Votre nouvelle tâche a été ajoutée")
@@ -116,7 +111,6 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
         aFaire.removeChild(element);
         aValider.appendChild(element);
         element.firstChild.checked = false;
-        
     }
 
     if (oldPosition === "validation") {
@@ -131,7 +125,7 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
         aTerminer.appendChild(element)
     }
     afficherMessage("Transfert", "Votre tâche a bien été transférée");
-    return saveTask(id, newPosition, 1); //! enlever le commentaire
+    return saveTask(id, newPosition, 1);
 }
 
 function supprimerTache(event) { // Supprime une tâche
@@ -139,18 +133,16 @@ function supprimerTache(event) { // Supprime une tâche
     let elementClique = event.target.nodeName;
     let id;
     let element;
-console.log(elementClique);
 
     if (elementClique === "I") {
-        let position = event.target.parentElement.parentElement.firstChild.getAttribute("position");
+        let position = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("position");
 
         id = event.target.parentElement.parentElement.firstChild.nextElementSibling.getAttribute("id");
         element = event.target.parentElement.parentElement;
 
-        if (position === "terminees") {
+        if (position === null) {
             id = event.target.parentElement.parentElement.firstChild.getAttribute("id");
         }
-        
         afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
     };
 
@@ -159,7 +151,6 @@ console.log(elementClique);
         element = event.target.parentElement;
         afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
     };
-
 
     TASKS.forEach(suppressionTask => {
         if (suppressionTask.id === id) {
@@ -233,6 +224,10 @@ function keypress(event) { //Fonction qui réagit lorsque l'on presse la touche 
 function trier(event) { // Fonction permettant le tri
     let option = parseInt(event.target.value);
 
+    aFaire.parentElement.parentElement.classList.remove("animation");
+    aValider.parentElement.parentElement.classList.remove("animation");
+    aTerminer.parentElement.parentElement.classList.remove("animation");
+
     switch (option) {
         case 1:
             aFaire.parentElement.parentElement.classList.remove("d-none");
@@ -280,6 +275,6 @@ function afficherMessage(titre, message) { // Permet d'afficher une modale avec 
     information[0].firstElementChild.textContent = titre;
     information[0].firstElementChild.nextElementSibling.textContent = message;
     setTimeout(() => {
-        information[0].classList.remove("informations")
+        information[0].classList.remove("informations");
     }, "6000");
 }
