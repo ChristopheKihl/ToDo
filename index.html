@@ -37,13 +37,14 @@
                                 class="btn btn-outline-success bg-black bg-opacity-50">Valider</button>
                         </article>
                     </section>
-                    <hr class="border border-danger border-1 opacity-25 mx-4">
+                    <hr class="border border-danger border-2 opacity-50 mx-4">
                     <section class="row">
                         <article class="col-12 m-auto mb-2">
                             Vous voulez trier par :
                         </article>
                         <article class="col-5 m-auto mb-2">
                             <select id="tri" class="form-select form-select-sm">
+                                <option value="0">Aucun</option>
                                 <option value="1">Tous</option>
                                 <option value="2">A faire</option>
                                 <option value="3">A valider</option>
@@ -55,7 +56,7 @@
             </section>
         </section>
     </form>
-    <hr class="border border-black border-2 opacity-25 mx-4 mt-5">
+    <hr class="border border-warning border-2 opacity-25 mx-4 mt-5">
     <section class="row mt-5 m-auto">
         <section class="animation col-4 m-auto mt-0">
             <article class="bg-info bg-gradient text-center text-uppercase fs-5 rounded-top-4">A faire</article>
@@ -84,6 +85,26 @@
                 </ul>
             </article>
         </section>
+    </section>
+
+    <section id="tableauGeneral">
+        <section class="row">
+            <section class="col-8 text-center m-auto bg-black bg-gradient rounded-top-3 fs-4">
+                Listes des tâches
+            </section>
+        </section>
+        <section class="row">
+            <article class="col-8 text-center m-auto bg-secondary bg-gradient fs-5">
+                <section class="row p-1">
+                    <article class="col-6 border-3 border-end">Nom de la tâche</article>
+                    <article class="col-6">Catégorie</article>
+                </section>
+            </article>
+        </section>
+    </section>
+
+    <section id="tableauDonnees">
+
     </section>
 
     <section class="modale">
