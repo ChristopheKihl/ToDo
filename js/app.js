@@ -23,7 +23,7 @@ aTerminer.addEventListener("click", transfererTache);
 aFaire.addEventListener("click", supprimerTache);
 aValider.addEventListener("click", supprimerTache);
 aTerminer.addEventListener("click", supprimerTache);
-tri.addEventListener("click", trier);
+tri.addEventListener("change", trier);
 
 function ajoutTache(nomTache, position, state, id) { // Ajoute une nouvelle tâche + formatage des données existantes
     let newLi = document.createElement("li");
@@ -74,20 +74,12 @@ function ajoutTache(nomTache, position, state, id) { // Ajoute une nouvelle tâc
 
         task.value = "";
 
-        if (state === 0) {
-            // Création d'une nouvelle tâche
+        if (state === 0) {// Création d'une nouvelle tâche
             afficherMessage("Nouvelle tâche", "Votre nouvelle tâche a été ajoutée");
             let nouvelleTache = { id: id, nomTache: nomTache, position: position };
             TASKS.push(nouvelleTache);
         }
         return saveTask();
-        // if (state === 1) { //modification de la position de la tâche
-        //     TASKS.forEach(valeur => {
-        //         if (valeur.id == value) {
-        //             valeur.position = position;
-        //         };
-        //     });
-        // }
     }
 }
 
@@ -98,6 +90,8 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
     let position;
     let nomTache;
     let idTarget;
+
+    event.stopPropagation();
 
     if (elementClique === "INPUT" || elementClique === "LABEL") {
         elementParent = event.target.parentElement;
@@ -142,6 +136,9 @@ function transfererTache(event) { // Transfert des tâches vers une autre catég
         }
         afficherMessage("Transfert", "Votre tâche a bien été transférée");
     }
+    console.log(event.target.nodeName);
+    console.log(elementClique);
+
 
     if ((elementClique === "I" || elementClique === "BUTTON") && idTarget === "back") {
         switch (position) {
@@ -171,10 +168,15 @@ function supprimerTache(event) { // Supprime une tâche
     let id;
     let position;
 
+    console.log(elementClique);
+    console.log(event.target.parentElement.id);
+
+
     if (elementClique === "I" && event.target.parentElement.id === "trash") {
         elementParent = event.target.parentElement.parentElement;
         id = elementParent.getElementsByTagName("label")[0].getAttribute("id");
         position = elementParent.getElementsByTagName("label")[0].getAttribute("position");
+        afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
     }
 
     switch (position) {
@@ -191,7 +193,6 @@ function supprimerTache(event) { // Supprime une tâche
             break;
     }
 
-    afficherMessage("Suppression", "Votre tâche a été supprimée !!!");
 
     for (let i = 0; i < TASKS.length; i++) { // suppression de l'objet vide
         if (TASKS[i].id === id) {
@@ -235,7 +236,8 @@ function keypress(event) {//Fonction qui réagit lorsque l'on presse la touche E
 
 function trier(event) { // Fonction permettant le tri
     let option = parseInt(event.target.value);
-    let nomTache;
+    let tableauGeneral = document.getElementById("tableauGeneral");
+    let tableauDonnees = document.getElementById("tableauDonnees");
 
     aFaire.parentElement.parentElement.classList.remove("animation");
     aValider.parentElement.parentElement.classList.remove("animation");
@@ -245,13 +247,51 @@ function trier(event) { // Fonction permettant le tri
     aValider.parentElement.parentElement.classList.add("d-none");
     aTerminer.parentElement.parentElement.classList.add("d-none");
 
+    switch (option) {
+        case 0:
+            aFaire.parentElement.parentElement.classList.remove("d-none");
+            aValider.parentElement.parentElement.classList.remove("d-none");
+            aTerminer.parentElement.parentElement.classList.remove("d-none");
+            tableauGeneral.classList.add("d-none");
+            tableauDonnees.classList.add("d-none");
+            break;
+        case 1: //option Tous
+            tableauGeneral.classList.remove("d-none");
+            tableauDonnees.classList.remove("d-none");
+            affichageTableau("tout");
+            break;
+
+        case 2: //option A faire
+            tableauGeneral.classList.remove("d-none");
+            tableauDonnees.classList.remove("d-none");
+            affichageTableau("faire");
+            break;
+
+        case 3://option A valider
+            tableauGeneral.classList.remove("d-none");
+            tableauDonnees.classList.remove("d-none");
+            affichageTableau("validation");
+            break;
+
+        case 4://option Terminées
+            tableauGeneral.classList.remove("d-none");
+            tableauDonnees.classList.remove("d-none");
+            affichageTableau("terminees");
+            break;
+
+        default:
+            break;
+    }
+}
+
+function affichageTableau(position) {
     let sectionParent = document.createElement("section");
     let articleParent = document.createElement("article");
     let sectionTache = document.createElement("section");
     let articleTache = document.createElement("article");
     let articleCategorie = document.createElement("article");
-    let tableauGeneral = document.getElementById("tableauGeneral");
     let tableauDonnees = document.getElementById("tableauDonnees");
+    let element;
 
     sectionParent.classList.add("row", "pt-2");
     articleParent.classList.add("col-8", "text-center", "m-auto", "bg-white", "bg-gradient", "fs-6");
@@ -266,43 +306,30 @@ function trier(event) { // Fonction permettant le tri
     sectionTache.appendChild(articleTache);
     sectionTache.appendChild(articleCategorie);
 
-    switch (option) {
-        case 0:
-            aFaire.parentElement.parentElement.classList.remove("d-none");
-            aValider.parentElement.parentElement.classList.remove("d-none");
-            aTerminer.parentElement.parentElement.classList.remove("d-none");
-            break;
-        case 1: //option Tous
-            let element;
+    let long = tableauDonnees.childNodes.length;
 
-            TASKS.forEach((valeur) => {
-                element = sectionParent.cloneNode(true);
-                console.log(element);
-                element.firstChild.firstChild.firstChild.textContent = valeur.nomTache;
-                element.firstChild.firstChild.firstChild.nextElementSibling.textContent = valeur.position;
-                tableauDonnees.appendChild(element);
-            });
-            break;
+    for (let i = 0; i < long; i++) {
+        console.log("longueur tab", tableauDonnees.childNodes.length);
+        console.log("element a suppr", tableauDonnees.firstChild);
 
-        case 2: //option A faire
-
-            break;
-
-        case 3://option A valider
-
-            break;
-
-        case 4://option Terminées
-
-            break;
-
-        default:
-            break;
+        tableauDonnees.removeChild(tableauDonnees.firstChild);
+        console.log("valeur de i", i);
     }
+
+
+    TASKS.forEach((valeur) => {
+        if (valeur.position === position || position === "tout") {
+            element = sectionParent.cloneNode(true);
+            element.firstChild.firstChild.firstChild.textContent = valeur.nomTache;
+            element.firstChild.firstChild.firstChild.nextElementSibling.textContent = valeur.position;
+            tableauDonnees.appendChild(element);
+        }
+    });
+    element = "";
 }
 
 function afficherMessage(titre, message) {// Permet d'afficher une modale avec des informations
-    information[0].classList.toggle("informations");
+    information[0].classList.add("informations");
     information[0].firstElementChild.textContent = titre;
     information[0].firstElementChild.nextElementSibling.textContent = message;
     setTimeout(() => {
